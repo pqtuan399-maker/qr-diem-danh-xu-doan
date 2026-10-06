@@ -1,2066 +1,584 @@
 <!DOCTYPE html>
-
 <html lang="vi">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#234E70">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Điểm danh">
+  <title>Điểm danh Xứ Đoàn</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-  >
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 
-  <title>Camera Điểm Danh QR</title>
-
-
-  <script
-    src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
-  </script>
-
+  <script src="config.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
-
-    * {
-      box-sizing: border-box;
+    *{box-sizing:border-box}
+    :root{
+      --primary:#234E70;--green:#25A45A;--yellow:#E8B43B;--red:#B3261E;
+      --panel:#11171B;--panel2:#1C252B;--border:#263038;--muted:#AEBBC4;
     }
-
-
-    :root {
-
-      --primary: #234E70;
-
-      --green: #25A45A;
-      --green-soft: #EAF8F0;
-
-      --yellow: #9A6700;
-      --yellow-soft: #FFF6DC;
-
-      --red: #B3261E;
-      --red-soft: #FDECEA;
-
-      --text: #17212B;
-      --muted: #AEBBC4;
-
-    }
-
-
-    html,
-    body {
-
-      margin: 0;
-
-      width: 100%;
-      min-height: 100%;
-
-      background: #090C0E;
-
-      color: #FFFFFF;
-
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    }
-
-
-    button {
-      font: inherit;
-    }
-
-
-    .app {
-
-      width: 100%;
-
-      min-height: 100vh;
-
-      display: flex;
-
-      flex-direction: column;
-
-    }
-
-
-    .topbar {
-
-      min-height: 62px;
-
-      padding:
-        9px 14px;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 12px;
-
-      background:
-        #11171B;
-
-      border-bottom:
-        1px solid #263038;
-
-    }
-
-
-    .brand {
-
-      font-weight: 900;
-
-      font-size: 15px;
-
-    }
-
-
-    .sub {
-
-      margin-top: 2px;
-
-      color: #9EADB7;
-
-      font-size: 10px;
-
-    }
-
-
-    .camera-state {
-
-      width: 10px;
-
-      height: 10px;
-
-      border-radius: 50%;
-
-      background: #68757E;
-
-    }
-
-
-    .camera-state.ok {
-
-      background: #35C46D;
-
-      box-shadow:
-        0 0 0 4px
-        rgba(53,196,109,.12);
-
-    }
-
-
-    .reader-wrap {
-
-      position: relative;
-
-      width: 100%;
-
-      min-height:
-        430px;
-
-      flex: 1;
-
-      background: #000;
-
-      overflow: hidden;
-
-    }
-
-
-    #reader {
-
-      width: 100%;
-
-      min-height:
-        430px;
-
-      background: #000;
-
-    }
-
-
-    #reader video {
-
-      width: 100% !important;
-
-      height:
-        min(68vh, 620px) !important;
-
-      object-fit:
-        cover !important;
-
-    }
-
-
-    #reader img {
-
-      display:
-        none !important;
-
-    }
-
-
-    .guide {
-
-      position: absolute;
-
-      left: 50%;
-
-      top: 50%;
-
-      transform:
-        translate(-50%, -50%);
-
-      width:
-        min(72vw, 300px);
-
-      aspect-ratio:
-        1 / 1;
-
-      z-index: 10;
-
-      pointer-events: none;
-
-      border:
-        1px solid
-        rgba(255,255,255,.25);
-
-      border-radius: 23px;
-
-      box-shadow:
-        0 0 0 9999px
-        rgba(0,0,0,.18);
-
-    }
-
-
-    .corner {
-
-      position: absolute;
-
-      width: 34px;
-
-      height: 34px;
-
-      border-style: solid;
-
-      border-color: #FFFFFF;
-
-    }
-
-
-    .tl {
-
-      left: -2px;
-      top: -2px;
-
-      border-width:
-        4px 0 0 4px;
-
-      border-radius:
-        17px 0 0 0;
-
-    }
-
-
-    .tr {
-
-      right: -2px;
-      top: -2px;
-
-      border-width:
-        4px 4px 0 0;
-
-      border-radius:
-        0 17px 0 0;
-
-    }
-
-
-    .bl {
-
-      left: -2px;
-      bottom: -2px;
-
-      border-width:
-        0 0 4px 4px;
-
-      border-radius:
-        0 0 0 17px;
-
-    }
-
-
-    .br {
-
-      right: -2px;
-      bottom: -2px;
-
-      border-width:
-        0 4px 4px 0;
-
-      border-radius:
-        0 0 17px 0;
-
-    }
-
-
-    .scan-line {
-
-      position: absolute;
-
-      left: 10%;
-
-      width: 80%;
-
-      height: 2px;
-
-      top: 18%;
-
-      background:
-        #63E49B;
-
-      box-shadow:
-        0 0 12px
-        rgba(99,228,155,.85);
-
-      animation:
-        scan 1.9s
-        ease-in-out
-        infinite;
-
-    }
-
-
-    @keyframes scan {
-
-      0%,
-      100% {
-        top: 18%;
-      }
-
-      50% {
-        top: 82%;
-      }
-
-    }
-
-
-    .hint {
-
-      position: absolute;
-
-      z-index: 11;
-
-      left: 50%;
-
-      bottom: 17px;
-
-      transform:
-        translateX(-50%);
-
-      max-width: 90%;
-
-      padding:
-        8px 13px;
-
-      border-radius:
-        999px;
-
-      background:
-        rgba(0,0,0,.62);
-
-      color: #FFFFFF;
-
-      font-size: 11px;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-
-      pointer-events: none;
-
-    }
-
-
-    .start-layer {
-
-      position: absolute;
-
-      z-index: 20;
-
-      inset: 0;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      padding: 25px;
-
-      background:
-        rgba(0,0,0,.76);
-
-      text-align: center;
-
-    }
-
-
-    .start-box {
-
-      width:
-        min(100%, 390px);
-
-    }
-
-
-    .start-icon {
-
-      font-size: 48px;
-
-      margin-bottom: 15px;
-
-    }
-
-
-    .start-title {
-
-      font-size: 21px;
-
-      font-weight: 900;
-
-    }
-
-
-    .start-text {
-
-      margin-top: 9px;
-
-      color: #B2C0C8;
-
-      font-size: 12px;
-
-      line-height: 1.6;
-
-    }
-
-
-    .start-btn {
-
-      width: 100%;
-
-      min-height: 52px;
-
-      margin-top: 20px;
-
-      border: 0;
-
-      border-radius: 14px;
-
-      background:
-        var(--primary);
-
-      color: #FFFFFF;
-
-      font-weight: 900;
-
-      cursor: pointer;
-
-    }
-
-
-    .controls {
-
-      padding:
-        10px 12px;
-
-      display: grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
-      gap: 9px;
-
-      background:
-        #11171B;
-
-    }
-
-
-    .control-btn {
-
-      min-height: 43px;
-
-      border:
-        1px solid #33404A;
-
-      border-radius: 11px;
-
-      background:
-        #1C252B;
-
-      color: #FFFFFF;
-
-      font-weight: 800;
-
-      cursor: pointer;
-
-    }
-
-
-    .result {
-
-      min-height: 126px;
-
-      padding:
-        15px;
-
-      display: flex;
-
-      flex-direction: column;
-
-      justify-content: center;
-
-      align-items: center;
-
-      text-align: center;
-
-      background:
-        #11171B;
-
-      border-top:
-        1px solid #263038;
-
-    }
-
-
-    .result.success {
-
-      background:
-        #123121;
-
-      color:
-        #C6F3D8;
-
-    }
-
-
-    .result.duplicate {
-
-      background:
-        #382D0F;
-
-      color:
-        #FFE9A6;
-
-    }
-
-
-    .result.error {
-
-      background:
-        #351515;
-
-      color:
-        #FFD0CC;
-
-    }
-
-
-    .result-icon {
-
-      font-size: 31px;
-
-      margin-bottom: 6px;
-
-    }
-
-
-    .result-title {
-
-      font-weight: 900;
-
-      font-size: 15px;
-
-    }
-
-
-    .member-name {
-
-      margin-top: 7px;
-
-      font-size: 19px;
-
-      font-weight: 900;
-
-    }
-
-
-    .member-meta {
-
-      margin-top: 4px;
-
-      font-size: 11px;
-
-      line-height: 1.5;
-
-    }
-
-
-    .fallback {
-
-      display: none;
-
-      padding:
-        11px 12px;
-
-      background:
-        #241D0E;
-
-      text-align: center;
-
-    }
-
-
-    .fallback button {
-
-      min-height: 42px;
-
-      padding:
-        8px 15px;
-
-      border: 0;
-
-      border-radius: 10px;
-
-      background:
-        #E8B43B;
-
-      color:
-        #2B2109;
-
-      font-weight: 900;
-
-    }
-
+    html,body{margin:0;width:100%;min-height:100%;background:#090C0E;color:#fff;font-family:Arial,Helvetica,sans-serif}
+    button{font:inherit}
+    .app{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{min-height:62px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border-bottom:1px solid var(--border)}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-logo{width:40px;height:40px;flex:0 0 40px;border-radius:11px}
+    .brand-title{font-weight:900;font-size:15px}
+    .brand-sub{margin-top:2px;color:#9EADB7;font-size:10px}
+    .state-dot{width:10px;height:10px;border-radius:50%;background:#68757E;flex:0 0 10px}
+    .state-dot.ok{background:#35C46D;box-shadow:0 0 0 4px rgba(53,196,109,.12)}
+
+    .launcher{min-height:calc(100vh - 62px);display:none;align-items:center;justify-content:center;padding:24px 18px;background:radial-gradient(circle at 50% 18%,rgba(35,78,112,.36),transparent 34%),#090C0E}
+    .launcher-card{width:min(100%,430px);text-align:center;padding:28px 22px;background:rgba(17,23,27,.96);border:1px solid var(--border);border-radius:24px;box-shadow:0 20px 50px rgba(0,0,0,.28)}
+    .launcher-icon{width:104px;height:104px;margin:0 auto 18px;border-radius:26px;box-shadow:0 12px 32px rgba(0,0,0,.30)}
+    .launcher-title{font-size:22px;font-weight:900}
+    .launcher-text{margin-top:9px;color:#B2C0C8;font-size:12px;line-height:1.65}
+    .launcher-btn{width:100%;min-height:52px;margin-top:20px;border:0;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;cursor:pointer}
+    .launcher-btn:disabled{opacity:.48;cursor:default}
+    .config-error{display:none;margin-top:15px;padding:12px 13px;border:1px solid #6D2A26;border-radius:12px;background:#351515;color:#FFD0CC;font-size:11px;line-height:1.55;text-align:left}
+
+    .camera-app{display:none}
+    .reader-wrap{position:relative;width:100%;min-height:430px;flex:1;background:#000;overflow:hidden}
+    #reader{width:100%;min-height:430px;background:#000}
+    #reader video{width:100%!important;height:min(68vh,620px)!important;object-fit:cover!important}
+    #reader img{display:none!important}
+    .guide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(72vw,300px);aspect-ratio:1/1;z-index:10;pointer-events:none;border:1px solid rgba(255,255,255,.25);border-radius:23px;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
+    .corner{position:absolute;width:34px;height:34px;border-style:solid;border-color:#fff}
+    .tl{left:-2px;top:-2px;border-width:4px 0 0 4px;border-radius:17px 0 0 0}
+    .tr{right:-2px;top:-2px;border-width:4px 4px 0 0;border-radius:0 17px 0 0}
+    .bl{left:-2px;bottom:-2px;border-width:0 0 4px 4px;border-radius:0 0 0 17px}
+    .br{right:-2px;bottom:-2px;border-width:0 4px 4px 0;border-radius:0 0 17px 0}
+    .scan-line{position:absolute;left:10%;width:80%;height:2px;top:18%;background:#63E49B;box-shadow:0 0 12px rgba(99,228,155,.85);animation:scan 1.9s ease-in-out infinite}
+    @keyframes scan{0%,100%{top:18%}50%{top:82%}}
+    .hint{position:absolute;z-index:11;left:50%;bottom:17px;transform:translateX(-50%);max-width:90%;padding:8px 13px;border-radius:999px;background:rgba(0,0,0,.62);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+    .start-layer{position:absolute;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;padding:25px;background:rgba(0,0,0,.76);text-align:center}
+    .start-box{width:min(100%,390px)}
+    .start-icon{width:92px;height:92px;margin:0 auto 14px;border-radius:23px}
+    .start-title{font-size:21px;font-weight:900}
+    .start-text{margin-top:9px;color:#B2C0C8;font-size:12px;line-height:1.6}
+    .start-btn{width:100%;min-height:52px;margin-top:20px;border:0;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;cursor:pointer}
+    .controls{padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:9px;background:var(--panel)}
+    .control-btn{min-height:43px;border:1px solid #33404A;border-radius:11px;background:var(--panel2);color:#fff;font-weight:800;cursor:pointer}
+    .result{min-height:126px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--panel);border-top:1px solid var(--border)}
+    .result.success{background:#123121;color:#C6F3D8}
+    .result.duplicate{background:#382D0F;color:#FFE9A6}
+    .result.error{background:#351515;color:#FFD0CC}
+    .result-icon{font-size:31px;margin-bottom:6px}
+    .result-title{font-weight:900;font-size:15px}
+    .member-name{margin-top:7px;font-size:19px;font-weight:900}
+    .member-meta{margin-top:4px;font-size:11px;line-height:1.5}
+    .fallback{display:none;padding:11px 12px;background:#241D0E;text-align:center}
+    .fallback button{min-height:42px;padding:8px 15px;border:0;border-radius:10px;background:var(--yellow);color:#2B2109;font-weight:900}
   </style>
-
 </head>
 
-
 <body>
+<div class="app">
 
-
-  <div class="app">
-
-
-    <header class="topbar">
-
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="icons/icon-192.png" alt="Điểm danh">
       <div>
-
-        <div class="brand">
-          📷 CAMERA ĐIỂM DANH QR
-        </div>
-
-        <div class="sub">
-          Camera bảo mật • chỉ đọc mã QR
-        </div>
-
+        <div class="brand-title" id="brandTitle">ĐIỂM DANH XỨ ĐOÀN</div>
+        <div class="brand-sub" id="brandSub">QR Attendance System</div>
       </div>
+    </div>
+    <div class="state-dot" id="cameraState"></div>
+  </header>
 
-
-      <div
-        class="camera-state"
-        id="cameraState">
+  <section class="launcher" id="launcherView">
+    <div class="launcher-card">
+      <img class="launcher-icon" src="icons/icon-512.png" alt="Điểm danh Xứ Đoàn">
+      <div class="launcher-title">ĐIỂM DANH XỨ ĐOÀN</div>
+      <div class="launcher-text">
+        Ứng dụng sẽ mở hệ thống chính thức để xác thực Gmail và quyền lớp
+        trước khi sử dụng camera quét QR.
       </div>
+      <button class="launcher-btn" id="launchBtn">MỞ HỆ THỐNG ĐIỂM DANH</button>
+      <div class="config-error" id="configError">
+        Chưa cấu hình link Web App chính thức.<br><br>
+        Mở <b>config.js</b> và dán link tại <b>CẤU HÌNH!J3</b>
+        vào <b>OFFICIAL_APP_URL</b>.
+      </div>
+    </div>
+  </section>
 
-    </header>
-
-
+  <section class="camera-app" id="cameraView">
     <main class="reader-wrap">
-
-
       <div id="reader"></div>
 
-
       <div class="guide">
-
         <span class="corner tl"></span>
         <span class="corner tr"></span>
         <span class="corner bl"></span>
         <span class="corner br"></span>
-
         <div class="scan-line"></div>
-
       </div>
 
+      <div class="hint" id="hint">Đưa QR vào giữa khung</div>
 
-      <div
-        class="hint"
-        id="hint">
-
-        Đưa QR vào giữa khung
-
-      </div>
-
-
-      <div
-        class="start-layer"
-        id="startLayer">
-
+      <div class="start-layer" id="startLayer">
         <div class="start-box">
-
-          <div class="start-icon">
-            📷
-          </div>
-
-          <div class="start-title">
-            BẬT CAMERA
-          </div>
-
+          <img class="start-icon" src="icons/icon-192.png" alt="Camera QR">
+          <div class="start-title">BẬT CAMERA</div>
           <div class="start-text">
-
-            Cho phép trình duyệt sử dụng camera.
-
-            <br><br>
-
+            Cho phép trình duyệt sử dụng camera.<br><br>
             Nên sử dụng camera sau của điện thoại.
-
           </div>
-
-
-          <button
-            class="start-btn"
-            id="startBtn">
-
-            CHO PHÉP & BẬT CAMERA
-
-          </button>
-
+          <button class="start-btn" id="startBtn">CHO PHÉP & BẬT CAMERA</button>
         </div>
-
       </div>
-
     </main>
 
-
     <div class="controls">
-
-      <button
-        class="control-btn"
-        id="switchBtn">
-
-        🔄 ĐỔI CAMERA
-
-      </button>
-
-
-      <button
-        class="control-btn"
-        id="closeBtn">
-
-        ✕ ĐÓNG CAMERA
-
-      </button>
-
+      <button class="control-btn" id="switchBtn">🔄 ĐỔI CAMERA</button>
+      <button class="control-btn" id="closeBtn">✕ ĐÓNG CAMERA</button>
     </div>
 
-
-    <section
-      class="result"
-      id="resultBox">
-
-      <div class="result-icon">
-        ⛶
-      </div>
-
-      <div class="result-title">
-        SẴN SÀNG QUÉT
-      </div>
-
-      <div class="member-meta">
-        Kết quả sẽ hiển thị ngay tại đây.
-      </div>
-
+    <section class="result" id="resultBox">
+      <div class="result-icon">⛶</div>
+      <div class="result-title">SẴN SÀNG QUÉT</div>
+      <div class="member-meta">Kết quả sẽ hiển thị ngay tại đây.</div>
     </section>
 
-
-    <div
-      class="fallback"
-      id="fallback">
-
-      <div
-        style="
-          margin-bottom:8px;
-          font-size:12px;
-        ">
-
-        Không nhận được phản hồi từ ứng dụng.
-
-      </div>
-
-      <button
-        id="returnBtn">
-
-        QUAY LẠI ỨNG DỤNG
-
-      </button>
-
+    <div class="fallback" id="fallback">
+      <div style="margin-bottom:8px;font-size:12px">Không nhận được phản hồi từ ứng dụng.</div>
+      <button id="returnBtn">QUAY LẠI ỨNG DỤNG</button>
     </div>
+  </section>
 
-  </div>
+</div>
 
+<script>
+  const CFG = window.XD04_CONFIG || {};
+  const params = new URLSearchParams(window.location.search);
+  const NONCE = params.get('nonce') || '';
+  const RETURN_URL = params.get('return') || '';
+  const IS_CAMERA_SESSION = !!NONCE && !!RETURN_URL;
 
-  <script>
+  const state = {
+    scanner:null,
+    running:false,
+    busy:false,
+    cameras:[],
+    cameraIndex:-1,
+    lastRaw:'',
+    lastRawAt:0,
+    pendingRaw:'',
+    responseTimer:null
+  };
 
-    const params =
-      new URLSearchParams(
-        window.location.search
+  const $ = id => document.getElementById(id);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    $('brandTitle').textContent = CFG.APP_NAME || 'ĐIỂM DANH XỨ ĐOÀN';
+
+    if (IS_CAMERA_SESSION) {
+      if (!isValidReturnUrl(RETURN_URL)) {
+        showLauncher('Link trả về Apps Script không hợp lệ.');
+        return;
+      }
+
+      $('cameraView').style.display = 'block';
+      bindCameraEvents();
+    } else {
+      showLauncher();
+    }
+
+    registerServiceWorker();
+  });
+
+  function showLauncher(errorText) {
+    $('cameraView').style.display = 'none';
+    $('launcherView').style.display = 'flex';
+
+    const appUrl = String(CFG.OFFICIAL_APP_URL || '').trim();
+    const valid = isValidOfficialAppUrl(appUrl);
+
+    if (!valid) {
+      $('launchBtn').disabled = true;
+      $('configError').style.display = 'block';
+
+      if (errorText) {
+        $('configError').textContent = errorText;
+      }
+      return;
+    }
+
+    $('launchBtn').addEventListener('click', () => {
+      window.location.href = appUrl;
+    });
+
+    if (params.get('source') === 'pwa') {
+      $('brandSub').textContent = 'Mở hệ thống chính thức để xác thực Gmail';
+    }
+  }
+
+  function bindCameraEvents() {
+    $('startBtn').addEventListener('click', startCamera);
+    $('switchBtn').addEventListener('click', switchCamera);
+    $('closeBtn').addEventListener('click', closeCamera);
+    $('returnBtn').addEventListener('click', fallbackReturn);
+    window.addEventListener('message', receiveAppMessage);
+  }
+
+  async function startCamera() {
+    if (state.running) return;
+
+    if (typeof Html5Qrcode === 'undefined') {
+      showLocalError('Không tải được thư viện QR.');
+      return;
+    }
+
+    $('startBtn').disabled = true;
+    $('startBtn').textContent = 'ĐANG MỞ CAMERA...';
+    setHint('Đang yêu cầu quyền camera...');
+
+    try {
+      state.scanner = new Html5Qrcode('reader', {verbose:false});
+      const config = getScannerConfig();
+
+      try {
+        await state.scanner.start(
+          {facingMode:'environment'},
+          config,
+          onScanSuccess,
+          function(){}
+        );
+      } catch (firstError) {
+        try { await state.scanner.clear(); } catch(err){}
+
+        state.scanner = new Html5Qrcode('reader', {verbose:false});
+        state.cameras = await Html5Qrcode.getCameras();
+
+        if (!state.cameras || !state.cameras.length) {
+          throw firstError;
+        }
+
+        state.cameraIndex = findBackCameraIndex(state.cameras);
+
+        await state.scanner.start(
+          state.cameras[state.cameraIndex].id,
+          config,
+          onScanSuccess,
+          function(){}
+        );
+      }
+
+      state.running = true;
+      $('startLayer').style.display = 'none';
+      $('cameraState').classList.add('ok');
+      setHint('Đưa QR vào giữa khung');
+
+      try {
+        state.cameras = await Html5Qrcode.getCameras();
+        if (state.cameras.length) {
+          state.cameraIndex = findBackCameraIndex(state.cameras);
+        }
+      } catch(err){}
+
+    } catch(err) {
+      $('startBtn').disabled = false;
+      $('startBtn').textContent = 'THỬ BẬT CAMERA LẠI';
+      setHint('Không mở được camera');
+      showLocalError('Không mở được camera.\n\n' + getErrorMessage(err));
+    }
+  }
+
+  function getScannerConfig() {
+    return {
+      fps:12,
+      qrbox:function(viewfinderWidth, viewfinderHeight){
+        const edge = Math.min(viewfinderWidth, viewfinderHeight);
+        const size = Math.floor(edge * 0.70);
+        return {width:size,height:size};
+      },
+      disableFlip:false
+    };
+  }
+
+  async function switchCamera() {
+    if (!state.running) return;
+
+    try {
+      if (!state.cameras.length) {
+        state.cameras = await Html5Qrcode.getCameras();
+      }
+
+      if (state.cameras.length <= 1) {
+        setHint('Điện thoại chỉ phát hiện 1 camera');
+        return;
+      }
+
+      state.cameraIndex = (state.cameraIndex + 1) % state.cameras.length;
+      const nextCamera = state.cameras[state.cameraIndex];
+
+      await state.scanner.stop();
+      await state.scanner.start(
+        nextCamera.id,
+        getScannerConfig(),
+        onScanSuccess,
+        function(){}
       );
 
+      setHint(nextCamera.label || 'Đã đổi camera');
 
-    const NONCE =
-      params.get(
-        'nonce'
-      ) || '';
+    } catch(err) {
+      showLocalError('Không thể đổi camera.');
+    }
+  }
 
+  async function closeCamera() {
+    if (state.scanner && state.running) {
+      try { await state.scanner.stop(); } catch(err){}
+    }
 
-    const RETURN_URL =
-      params.get(
-        'return'
-      ) || '';
+    state.running = false;
 
+    try { window.close(); } catch(err){}
 
-    const state = {
+    $('startLayer').style.display = 'flex';
+    $('startBtn').disabled = false;
+    $('startBtn').textContent = 'BẬT CAMERA';
+  }
 
-      scanner:
-        null,
+  function onScanSuccess(decodedText) {
+    const raw = String(decodedText || '').trim().toUpperCase();
+    if (!raw) return;
 
-      running:
-        false,
+    const now = Date.now();
 
-      busy:
-        false,
+    if (
+      raw === state.lastRaw &&
+      (now - state.lastRawAt) < Number(CFG.LOCAL_DUPLICATE_DELAY_MS || 6500)
+    ) {
+      return;
+    }
 
-      cameras:
-        [],
+    if (state.busy) return;
 
-      cameraIndex:
-        -1,
+    state.lastRaw = raw;
+    state.lastRawAt = now;
 
-      lastRaw:
-        '',
+    const coreLength = Number(CFG.QR_CORE_LENGTH || 12);
+    const protocol = String(CFG.QR_PROTOCOL || 'MEM').trim().toUpperCase();
+    const regex = new RegExp('^' + protocol + '\\|[A-F0-9]{' + coreLength + '}$');
 
-      lastRawAt:
-        0,
+    if (!regex.test(raw)) {
+      showLocalError('QR này không thuộc hệ thống Xứ Đoàn.');
+      vibrate([150,70,150]);
+      return;
+    }
 
-      pendingRaw:
-        '',
+    state.busy = true;
+    state.pendingRaw = raw;
+    tryPause();
+    showProcessing();
+    setHint('Đang gửi mã về hệ thống...');
 
-      responseTimer:
-        null
-
-    };
-
-
-    const $ =
-      function(id) {
-
-        return document
-          .getElementById(id);
-
-      };
-
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      function() {
-
-        $('startBtn')
-          .addEventListener(
-            'click',
-            startCamera
-          );
-
-
-        $('switchBtn')
-          .addEventListener(
-            'click',
-            switchCamera
-          );
-
-
-        $('closeBtn')
-          .addEventListener(
-            'click',
-            closeCamera
-          );
-
-
-        $('returnBtn')
-          .addEventListener(
-            'click',
-            fallbackReturn
-          );
-
-
-        window.addEventListener(
-          'message',
-          receiveAppMessage
+    if (window.opener && !window.opener.closed) {
+      try {
+        window.opener.postMessage(
+          {type:'XD04_QR', nonce:NONCE, raw:raw},
+          '*'
         );
 
-      }
+        clearTimeout(state.responseTimer);
+
+        state.responseTimer = setTimeout(
+          showTimeout,
+          Number(CFG.SERVER_RESPONSE_TIMEOUT_MS || 10000)
+        );
+
+        return;
+      } catch(err){}
+    }
+
+    fallbackReturn();
+  }
+
+  function receiveAppMessage(event) {
+    if (window.opener && event.source !== window.opener) return;
+
+    const data = event.data;
+
+    if (!data || data.type !== 'XD04_RESULT') return;
+    if (data.nonce !== NONCE) return;
+
+    clearTimeout(state.responseTimer);
+
+    showServerResult(data.result);
+
+    setTimeout(function(){
+      state.busy = false;
+      state.pendingRaw = '';
+      tryResume();
+      setHint('Sẵn sàng quét người tiếp theo');
+    },1100);
+  }
+
+  function showProcessing() {
+    const box = $('resultBox');
+    box.className = 'result';
+    box.innerHTML = '<div class="result-title">ĐANG KIỂM TRA...</div>';
+  }
+
+  function showServerResult(result) {
+    if (!result) {
+      showLocalError('Không nhận được kết quả.');
+      return;
+    }
+
+    if (result.ok && result.type === 'success') {
+      const m = result.member;
+      const box = $('resultBox');
+
+      box.className = 'result success';
+      box.innerHTML =
+        '<div class="result-icon">✓</div>' +
+        '<div class="result-title">ĐÃ GHI NHẬN</div>' +
+        '<div class="member-name">' + escapeHtml(m.name) + '</div>' +
+        '<div class="member-meta">' +
+          escapeHtml(m.className) + '<br>' +
+          escapeHtml(m.branch) + '<br>' +
+          escapeHtml(result.time || '') +
+        '</div>';
+
+      vibrate(100);
+      return;
+    }
+
+    if (result.ok && result.type === 'duplicate') {
+      const m = result.member;
+      const box = $('resultBox');
+
+      box.className = 'result duplicate';
+      box.innerHTML =
+        '<div class="result-icon">↻</div>' +
+        '<div class="result-title">ĐÃ ĐIỂM DANH HÔM NAY</div>' +
+        '<div class="member-name">' + escapeHtml(m.name) + '</div>' +
+        '<div class="member-meta">' +
+          escapeHtml(m.className) + '<br>' +
+          'Lần ghi nhận: ' + escapeHtml(result.time || '') +
+        '</div>';
+
+      vibrate([70,55,70]);
+      return;
+    }
+
+    showLocalError(result.message || 'Không thể điểm danh.');
+    vibrate([150,70,150]);
+  }
+
+  function showLocalError(message) {
+    const box = $('resultBox');
+    box.className = 'result error';
+    box.innerHTML =
+      '<div class="result-icon">!</div>' +
+      '<div class="result-title">KHÔNG THỂ GHI NHẬN</div>' +
+      '<div class="member-meta" style="white-space:pre-line">' +
+        escapeHtml(message) +
+      '</div>';
+  }
+
+  function showTimeout() {
+    state.busy = false;
+    tryResume();
+    $('fallback').style.display = 'block';
+
+    showLocalError(
+      'Ứng dụng điểm danh chưa phản hồi.\n\nBạn có thể quay lại ứng dụng và thử lại.'
+    );
+  }
+
+  function fallbackReturn() {
+    if (!RETURN_URL || !state.pendingRaw) {
+      showLocalError('Không kết nối được với ứng dụng điểm danh.');
+      state.busy = false;
+      tryResume();
+      return;
+    }
+
+    const url = new URL(RETURN_URL);
+    url.searchParams.set('qr', state.pendingRaw);
+    window.location.href = url.toString();
+  }
+
+  function tryPause() {
+    try {
+      if (state.scanner && state.running) state.scanner.pause(true);
+    } catch(err){}
+  }
+
+  function tryResume() {
+    try {
+      if (state.scanner && state.running) state.scanner.resume();
+    } catch(err){}
+  }
+
+  function findBackCameraIndex(cameras) {
+    const index = cameras.findIndex(camera =>
+      /back|rear|environment|sau/i.test(camera.label || '')
     );
 
-
-    /**
-     * ============================================================
-     * CAMERA
-     * ============================================================
-     */
-
-    async function startCamera() {
-
-      if (
-        state.running
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        typeof Html5Qrcode ===
-        'undefined'
-      ) {
-
-        showLocalError(
-          'Không tải được thư viện QR.'
-        );
-
-        return;
-
-      }
-
-
-      $('startBtn')
-        .disabled =
-        true;
-
-
-      $('startBtn')
-        .textContent =
-        'ĐANG MỞ CAMERA...';
-
-
-      setHint(
-        'Đang yêu cầu quyền camera...'
-      );
-
-
-      try {
-
-        state.scanner =
-          new Html5Qrcode(
-            'reader',
-            {
-              verbose:
-                false
-            }
-          );
-
-
-        const config =
-          getScannerConfig();
-
-
-        try {
-
-          await state.scanner
-            .start(
-
-              {
-                facingMode:
-                  'environment'
-              },
-
-              config,
-
-              onScanSuccess,
-
-              function() {}
-
-            );
-
-        }
-        catch (firstError) {
-
-          /**
-           * Fallback:
-           * lấy danh sách camera vật lý.
-           */
-          try {
-
-            await state.scanner
-              .clear();
-
-          }
-          catch (err) {}
-
-
-          state.scanner =
-            new Html5Qrcode(
-              'reader',
-              {
-                verbose:
-                  false
-              }
-            );
-
-
-          state.cameras =
-            await Html5Qrcode
-              .getCameras();
-
-
-          if (
-            !state.cameras ||
-            !state.cameras.length
-          ) {
-
-            throw firstError;
-
-          }
-
-
-          state.cameraIndex =
-            findBackCameraIndex(
-              state.cameras
-            );
-
-
-          await state.scanner
-            .start(
-
-              state.cameras[
-                state.cameraIndex
-              ].id,
-
-              config,
-
-              onScanSuccess,
-
-              function() {}
-
-            );
-
-        }
-
-
-        state.running =
-          true;
-
-
-        $('startLayer')
-          .style.display =
-          'none';
-
-
-        $('cameraState')
-          .classList
-          .add(
-            'ok'
-          );
-
-
-        setHint(
-          'Đưa QR vào giữa khung'
-        );
-
-
-        /**
-         * Sau khi quyền camera đã được cấp,
-         * lấy danh sách camera để nút ĐỔI CAMERA hoạt động.
-         */
-        try {
-
-          state.cameras =
-            await Html5Qrcode
-              .getCameras();
-
-
-          if (
-            state.cameras.length
-          ) {
-
-            state.cameraIndex =
-              findCurrentCameraIndex();
-
-          }
-
-        }
-        catch (err) {}
-
-      }
-      catch (err) {
-
-        $('startBtn')
-          .disabled =
-          false;
-
-
-        $('startBtn')
-          .textContent =
-          'THỬ BẬT CAMERA LẠI';
-
-
-        setHint(
-          'Không mở được camera'
-        );
-
-
-        showLocalError(
-
-          'Không mở được camera.\n\n' +
-
-          getErrorMessage(
-            err
-          )
-
-        );
-
-      }
-
-    }
-
-
-    function getScannerConfig() {
-
-      return {
-
-        fps:
-          12,
-
-        qrbox:
-          function(
-            viewfinderWidth,
-            viewfinderHeight
-          ) {
-
-            const edge =
-              Math.min(
-                viewfinderWidth,
-                viewfinderHeight
-              );
-
-
-            const size =
-              Math.floor(
-                edge *
-                0.70
-              );
-
-
-            return {
-
-              width:
-                size,
-
-              height:
-                size
-
-            };
-
-          },
-
-        disableFlip:
-          false
-
-      };
-
-    }
-
-
-    async function switchCamera() {
-
-      if (
-        !state.running
-      ) {
-
-        return;
-
-      }
-
-
-      try {
-
-        if (
-          !state.cameras.length
-        ) {
-
-          state.cameras =
-            await Html5Qrcode
-              .getCameras();
-
-        }
-
-
-        if (
-          state.cameras.length <=
-          1
-        ) {
-
-          setHint(
-            'Điện thoại chỉ phát hiện 1 camera'
-          );
-
-          return;
-
-        }
-
-
-        state.cameraIndex =
-          (
-            state.cameraIndex +
-            1
-          ) %
-          state.cameras.length;
-
-
-        const nextCamera =
-          state.cameras[
-            state.cameraIndex
-          ];
-
-
-        await state.scanner
-          .stop();
-
-
-        await state.scanner
-          .start(
-
-            nextCamera.id,
-
-            getScannerConfig(),
-
-            onScanSuccess,
-
-            function() {}
-
-          );
-
-
-        setHint(
-          nextCamera.label ||
-          'Đã đổi camera'
-        );
-
-      }
-      catch (err) {
-
-        showLocalError(
-          'Không thể đổi camera.'
-        );
-
-      }
-
-    }
-
-
-    async function closeCamera() {
-
-      if (
-        state.scanner &&
-        state.running
-      ) {
-
-        try {
-
-          await state.scanner
-            .stop();
-
-        }
-        catch (err) {}
-
-      }
-
-
-      state.running =
-        false;
-
-
-      try {
-
-        window.close();
-
-      }
-      catch (err) {}
-
-
-      /**
-       * Nếu trình duyệt không cho tự đóng.
-       */
-      $('startLayer')
-        .style.display =
-        'flex';
-
-
-      $('startBtn')
-        .disabled =
-        false;
-
-
-      $('startBtn')
-        .textContent =
-        'BẬT CAMERA';
-
-    }
-
-
-    /**
-     * ============================================================
-     * QR ĐÃ ĐỌC
-     * ============================================================
-     */
-
-    function onScanSuccess(
-      decodedText
-    ) {
-
-      const raw =
-        String(
-          decodedText || ''
-        )
-          .trim()
-          .toUpperCase();
-
-
-      if (!raw) {
-
-        return;
-
-      }
-
-
-      const now =
-        Date.now();
-
-
-      /**
-       * Camera thường đọc cùng QR nhiều lần/giây.
-       */
-      if (
-        raw ===
-          state.lastRaw &&
-        (
-          now -
-          state.lastRawAt
-        ) <
-          6500
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        state.busy
-      ) {
-
-        return;
-
-      }
-
-
-      state.lastRaw =
-        raw;
-
-
-      state.lastRawAt =
-        now;
-
-
-      if (
-        !/^MEM\|[A-F0-9]{12}$/.test(
-          raw
-        )
-      ) {
-
-        showLocalError(
-          'QR này không thuộc hệ thống Xứ Đoàn.'
-        );
-
-
-        vibrate(
-          [
-            150,
-            70,
-            150
-          ]
-        );
-
-
-        return;
-
-      }
-
-
-      state.busy =
-        true;
-
-
-      state.pendingRaw =
-        raw;
-
-
-      tryPause();
-
-
-      showProcessing();
-
-
-      setHint(
-        'Đang gửi mã về hệ thống...'
-      );
-
-
-      /**
-       * Cách chính:
-       * gửi mã về Apps Script đang mở.
-       */
-      if (
-        window.opener &&
-        !window.opener.closed
-      ) {
-
-        try {
-
-          window.opener
-            .postMessage(
-
-              {
-
-                type:
-                  'XD04_QR',
-
-                nonce:
-                  NONCE,
-
-                raw:
-                  raw
-
-              },
-
-              '*'
-
-            );
-
-
-          /**
-           * Chờ Apps Script trả kết quả.
-           */
-          clearTimeout(
-            state.responseTimer
-          );
-
-
-          state.responseTimer =
-            setTimeout(
-              function() {
-
-                showTimeout();
-
-              },
-              10000
-            );
-
-
-          return;
-
-        }
-        catch (err) {}
-
-      }
-
-
-      /**
-       * Fallback khi mobile browser
-       * không giữ window.opener.
-       */
-      fallbackReturn();
-
-    }
-
-
-    /**
-     * ============================================================
-     * NHẬN KẾT QUẢ TỪ APPS SCRIPT
-     * ============================================================
-     */
-
-    function receiveAppMessage(event) {
-
-      if (
-        window.opener &&
-        event.source !==
-          window.opener
-      ) {
-
-        return;
-
-      }
-
-
-      const data =
-        event.data;
-
-
-      if (
-        !data ||
-        data.type !==
-          'XD04_RESULT'
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        data.nonce !==
-        NONCE
-      ) {
-
-        return;
-
-      }
-
-
-      clearTimeout(
-        state.responseTimer
-      );
-
-
-      const result =
-        data.result;
-
-
-      showServerResult(
-        result
-      );
-
-
-      setTimeout(
-        function() {
-
-          state.busy =
-            false;
-
-
-          state.pendingRaw =
-            '';
-
-
-          tryResume();
-
-
-          setHint(
-            'Sẵn sàng quét người tiếp theo'
-          );
-
-        },
-        1100
-      );
-
-    }
-
-
-    /**
-     * ============================================================
-     * RESULT
-     * ============================================================
-     */
-
-    function showProcessing() {
-
-      const box =
-        $('resultBox');
-
-
-      box.className =
-        'result';
-
-
-      box.innerHTML =
-
-        '<div class="result-title">' +
-        'ĐANG KIỂM TRA...' +
-        '</div>';
-
-    }
-
-
-    function showServerResult(
-      result
-    ) {
-
-      if (!result) {
-
-        showLocalError(
-          'Không nhận được kết quả.'
-        );
-
-        return;
-
-      }
-
-
-      if (
-        result.ok &&
-        result.type ===
-          'success'
-      ) {
-
-        const m =
-          result.member;
-
-
-        const box =
-          $('resultBox');
-
-
-        box.className =
-          'result success';
-
-
-        box.innerHTML =
-
-          '<div class="result-icon">✓</div>' +
-
-          '<div class="result-title">' +
-          'ĐÃ GHI NHẬN' +
-          '</div>' +
-
-          '<div class="member-name">' +
-          escapeHtml(
-            m.name
-          ) +
-          '</div>' +
-
-          '<div class="member-meta">' +
-
-          escapeHtml(
-            m.className
-          ) +
-
-          '<br>' +
-
-          escapeHtml(
-            m.branch
-          ) +
-
-          '<br>' +
-
-          escapeHtml(
-            result.time || ''
-          ) +
-
-          '</div>';
-
-
-        vibrate(
-          100
-        );
-
-
-        return;
-
-      }
-
-
-      if (
-        result.ok &&
-        result.type ===
-          'duplicate'
-      ) {
-
-        const m =
-          result.member;
-
-
-        const box =
-          $('resultBox');
-
-
-        box.className =
-          'result duplicate';
-
-
-        box.innerHTML =
-
-          '<div class="result-icon">↻</div>' +
-
-          '<div class="result-title">' +
-          'ĐÃ ĐIỂM DANH HÔM NAY' +
-          '</div>' +
-
-          '<div class="member-name">' +
-          escapeHtml(
-            m.name
-          ) +
-          '</div>' +
-
-          '<div class="member-meta">' +
-
-          escapeHtml(
-            m.className
-          ) +
-
-          '<br>' +
-
-          'Lần ghi nhận: ' +
-
-          escapeHtml(
-            result.time || ''
-          ) +
-
-          '</div>';
-
-
-        vibrate(
-          [
-            70,
-            55,
-            70
-          ]
-        );
-
-
-        return;
-
-      }
-
-
-      showLocalError(
-        result.message ||
-        'Không thể điểm danh.'
-      );
-
-
-      vibrate(
-        [
-          150,
-          70,
-          150
-        ]
-      );
-
-    }
-
-
-    function showLocalError(
-      message
-    ) {
-
-      const box =
-        $('resultBox');
-
-
-      box.className =
-        'result error';
-
-
-      box.innerHTML =
-
-        '<div class="result-icon">!</div>' +
-
-        '<div class="result-title">' +
-        'KHÔNG THỂ GHI NHẬN' +
-        '</div>' +
-
-        '<div class="member-meta" ' +
-        'style="white-space:pre-line">' +
-
-        escapeHtml(
-          message
-        ) +
-
-        '</div>';
-
-    }
-
-
-    function showTimeout() {
-
-      state.busy =
-        false;
-
-
-      tryResume();
-
-
-      $('fallback')
-        .style.display =
-        'block';
-
-
-      showLocalError(
-
-        'Ứng dụng điểm danh chưa phản hồi.\n\n' +
-
-        'Bạn có thể quay lại ứng dụng và thử lại.'
-
-      );
-
-    }
-
-
-    /**
-     * ============================================================
-     * FALLBACK
-     * ============================================================
-     */
-
-    function fallbackReturn() {
-
-      if (
-        !RETURN_URL ||
-        !state.pendingRaw
-      ) {
-
-        showLocalError(
-          'Không kết nối được với ứng dụng điểm danh.'
-        );
-
-        state.busy =
-          false;
-
-        tryResume();
-
-        return;
-
-      }
-
-
-      const url =
-        new URL(
-          RETURN_URL
-        );
-
-
-      url.searchParams.set(
-        'qr',
-        state.pendingRaw
-      );
-
-
-      window.location.href =
-        url.toString();
-
-    }
-
-
-    /**
-     * ============================================================
-     * PAUSE / RESUME
-     * ============================================================
-     */
-
-    function tryPause() {
-
-      try {
-
-        if (
-          state.scanner &&
-          state.running
-        ) {
-
-          state.scanner
-            .pause(
-              true
-            );
-
-        }
-
-      }
-      catch (err) {}
-
-    }
-
-
-    function tryResume() {
-
-      try {
-
-        if (
-          state.scanner &&
-          state.running
-        ) {
-
-          state.scanner
-            .resume();
-
-        }
-
-      }
-      catch (err) {}
-
-    }
-
-
-    /**
-     * ============================================================
-     * CAMERA HELPERS
-     * ============================================================
-     */
-
-    function findBackCameraIndex(
-      cameras
-    ) {
-
-      const index =
-        cameras.findIndex(
-          function(camera) {
-
-            return /back|rear|environment|sau/i
-              .test(
-                camera.label || ''
-              );
-
-          }
-        );
-
-
-      if (
-        index >= 0
-      ) {
-
-        return index;
-
-      }
-
-
-      return Math.max(
-        0,
-        cameras.length - 1
-      );
-
-    }
-
-
-    function findCurrentCameraIndex() {
-
-      if (
-        !state.cameras.length
-      ) {
-
-        return -1;
-
-      }
-
-
-      return findBackCameraIndex(
-        state.cameras
-      );
-
-    }
-
-
-    function setHint(text) {
-
-      $('hint')
-        .textContent =
-        text;
-
-    }
-
-
-    function getErrorMessage(err) {
-
-      if (!err) {
-
-        return 'Không rõ nguyên nhân.';
-
-      }
-
-
-      if (
-        typeof err ===
-        'string'
-      ) {
-
-        return err;
-
-      }
-
+    return index >= 0 ? index : Math.max(0, cameras.length - 1);
+  }
+
+  function setHint(text) {
+    $('hint').textContent = text;
+  }
+
+  function getErrorMessage(err) {
+    if (!err) return 'Không rõ nguyên nhân.';
+    if (typeof err === 'string') return err;
+    return err.message || err.name || String(err);
+  }
+
+  function isValidOfficialAppUrl(value) {
+    try {
+      const url = new URL(value);
 
       return (
-        err.message ||
-        err.name ||
-        String(err)
+        url.protocol === 'https:' &&
+        url.hostname === 'script.google.com' &&
+        url.pathname.includes('/macros/s/')
       );
-
+    } catch(err) {
+      return false;
     }
+  }
 
+  function isValidReturnUrl(value) {
+    return isValidOfficialAppUrl(value);
+  }
 
-    function vibrate(pattern) {
+  function vibrate(pattern) {
+    try {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    } catch(err){}
+  }
 
-      try {
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#039;');
+  }
 
-        if (
-          navigator.vibrate
-        ) {
-
-          navigator.vibrate(
-            pattern
-          );
-
-        }
-
-      }
-      catch (err) {}
-
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register('./service-worker.js').catch(function(){});
+      });
     }
-
-
-    function escapeHtml(value) {
-
-      return String(
-        value || ''
-      )
-        .replace(
-          /&/g,
-          '&amp;'
-        )
-        .replace(
-          /</g,
-          '&lt;'
-        )
-        .replace(
-          />/g,
-          '&gt;'
-        )
-        .replace(
-          /"/g,
-          '&quot;'
-        )
-        .replace(
-          /'/g,
-          '&#039;'
-        );
-
-    }
-
-  </script>
-
+  }
+</script>
 </body>
-
 </html>
