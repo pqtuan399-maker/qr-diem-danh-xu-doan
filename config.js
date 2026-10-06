@@ -5,7 +5,7 @@
 window.XD04_CONFIG = Object.freeze({
   APP_NAME: 'ĐIỂM DANH XỨ ĐOÀN',
   APP_SHORT_NAME: 'ĐIỂM DANH',
-  OFFICIAL_APP_URL: 'PASTE_J3_WEB_APP_URL_HERE',
+  OFFICIAL_APP_URL: 'https://script.google.com/macros/s/AKfycbxwAS1qBsVh3U1oeqLYuXAfSdj6cpk6f4_edsto3t0/dev?app=scan',
   QR_PROTOCOL: 'MEM',
   QR_CORE_LENGTH: 12,
   LOCAL_DUPLICATE_DELAY_MS: 6500,
